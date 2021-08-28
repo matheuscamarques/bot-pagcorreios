@@ -4,49 +4,32 @@ var Config = require('node-json-db/dist/lib/JsonDBConfig').Config
 var fs = require("fs")
 
 var db = new JsonDB(new Config("dados", true, false, '/'));
-const puppeteer = require('puppeteer'); (async () => {
+var encomendas = new JsonDB(new Config("entrada_encomendas", true, false, '/'));
+
+module.exports = CorreiosScrapping
+
+/**
+ * @param Promise<any>
+ */
+async function CorreiosScrapping() {
+
+    return new Promise(async (resolve, reject) => {
+        const puppeteer = require('puppeteer'); (async () => {
+
+            let fila = encomendas.getData("/")
+            const browser = await puppeteer.launch({ headless: true });
+            await Login(browser, "", "")
+            while (fila.length) {
+                await PesquisaPorRemessa(browser, fila.pop())
+            }
+            await Logout(browser)
+            await browser.close();
+            resolve(true)
+        })();
+    })
+}
 
 
-    let fila = [
-        "UU202812886CN",
-        "UU201794090CN",
-        "UU201584051CN",
-        "UU201670617CN",
-        "UU201573677CN",
-        "UU201657964CN",
-        "UU201809846CN",
-        "UU201598104CN",
-        "UU201595195CN",
-        "UU202809564CN",
-        "UU201224623CN",
-        "UU202504681CN",
-        "UU201849235CN",
-        "UU202814122CN",
-        "UU201662880CN",
-        "UU202822849CN",
-        "UU203166680CN",
-        "UU202819725CN",
-        "UU202816565CN",
-        "UU202867434CN",
-        "UU201598104CN"
-    ]
-
-    const browser = await puppeteer.launch({ headless: true });
-    await Login(browser, "", "")
-
-    while (fila.length) {
-        await PesquisaPorRemessa(browser, fila.pop())
-    }
-
-
-    await Logout(browser)
-    await browser.close();
-
-})();
-
-
-// id username
-// id password
 /**
  * 
  * @param {puppeteer.Browser} browser 
